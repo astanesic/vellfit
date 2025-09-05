@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Upitnik — Evidencija o klijentu</title>
+<style>
+  :root{ --ink:#111; --muted:#555; --line:#ddd; --accent:#0a7; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--ink); }
+  body{ background:#fff; }
+  .container{ max-width:900px; margin:24px auto; padding:24px; border:1px solid var(--line); border-radius:12px; }
+  
+  /* Logo stilizacija */
+  .header { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin-bottom: 32px; 
+    padding-bottom: 24px; 
+    border-bottom: 2px solid var(--line);
+  }
+  .logo-container { 
+    display: flex; 
+    align-items: center; 
+    gap: 16px; 
+  }
+  .logo { 
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+  }
+  .brand-text { 
+    display: flex; 
+    flex-direction: column; 
+  }
+  .brand-name { 
+    font-size: 2rem; 
+    font-weight: 700; 
+    color: var(--ink); 
+    margin: 0; 
+    letter-spacing: -0.5px; 
+  }
+  .brand-tagline { 
+    font-size: 0.9rem; 
+    color: var(--muted); 
+    margin: 0; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+  }
+  
+  h1{ font-size:1.6rem; margin:0 0 12px; text-align: center; }
+  h2{ font-size:1.2rem; margin:24px 0 8px; border-bottom:2px solid var(--line); padding-bottom:6px; }
+  h3{ font-size:1rem; margin:16px 0 8px; color:var(--muted); }
+  p.hint{ color:var(--muted); font-size:0.9rem; margin-top:0; text-align: center; }
+  .grid{ display:grid; grid-template-columns: repeat(12,1fr); gap:12px; }
+  .row{ display:grid; grid-template-columns: repeat(12,1fr); gap:12px; align-items:end; margin-bottom:10px; }
+  .col-3{ grid-column: span 3; } .col-4{ grid-column: span 4; } .col-6{ grid-column: span 6; } .col-8{ grid-column: span 8; } .col-9{ grid-column: span 9; } .col-12{ grid-column: span 12; }
+  label{ font-size:0.95rem; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], textarea, select{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:0.95rem; background:#fff;
+  }
+  textarea{ min-height:80px; resize:vertical; }
+  fieldset{ border:1px solid var(--line); border-radius:10px; padding:12px; margin:12px 0; }
+  legend{ padding:0 6px; font-weight:600; color:var(--muted); }
+  .choices{ display:flex; flex-wrap:wrap; gap:14px 24px; }
+  .choice{ display:inline-flex; align-items:center; gap:8px; }
+  .note{ font-size:0.9rem; color:var(--muted); }
+  .flex{ display:flex; gap:12px; align-items:center; }
+  .grow{ flex:1; }
+  .hr{ height:1px; background:var(--line); margin:16px 0; }
+  .actions{ display:flex; gap:12px; justify-content:flex-end; margin-top:16px; }
+  button{ padding:10px 14px; border:1px solid var(--line); border-radius:10px; background:#fafafa; cursor:pointer; font-weight:600; }
+  button.primary{ border-color:var(--accent); background:#eafff6; }
+  .muted{ color:var(--muted); }
+  .sig-line{ border-bottom:1px solid var(--ink); min-height:28px; }
+  .small{ font-size:0.9rem; }
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  
+  /* Responsive logo */
+  @media (max-width: 600px) {
+    .header { flex-direction: column; gap: 16px; }
+    .logo-container { flex-direction: column; text-align: center; }
+    .brand-name { font-size: 1.6rem; }
+  }
+  
+  @media print{
+    .actions, .hint{ display:none !important; }
+    body{ background:#fff; }
+    .container{ border:none; padding:0; }
+    a{ color:inherit; text-decoration:none; }
+    .header { border-bottom: 1px solid var(--ink); }
+  }
+</style>
+</head>
+<body>
+  <form class="container">
+    <div class="header">
+      <div class="logo-container">
+        <img src="vellfit-logo.png" alt="VELLFIT Logo"  />
+        <div class="brand-text">
+          <h1 class="brand-name">VELLFIT</h1>
+          <p class="brand-tagline">Strength • Power • Balance</p>
+        </div>
+      </div>
+    </div>
+    
+    <h1>Upitnik — Evidencija o klijentu</h1>
+    <p class="hint">Savjet: ispunite obrazac, zatim odaberite <span class="mono">Ispis</span> i spremite kao PDF.</p>
+
+    <h2>OSOBNI PODACI</h2>
+    <div class="row">
+      <div class="col-8">
+        <label>Ime i prezime
+          <input type="text" name="ime_prezime" autocomplete="name" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>Spol</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="spol" value="m" /> Muški</label>
+          <label class="choice"><input type="radio" name="spol" value="z" /> Ženski</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-4">
+        <label>Datum rođenja
+          <input type="date" name="datum_rodjenja" />
+        </label>
+      </div>
+      <div class="col-8">
+        <label>Adresa
+          <input type="text" name="adresa" autocomplete="street-address" />
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-4">
+        <label>Grad
+          <input type="text" name="grad" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>OIB
+          <input type="text" name="oib" inputmode="numeric" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>E-mail
+          <input type="email" name="email" autocomplete="email" />
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-4">
+        <label>Mobitel
+          <input type="tel" name="mobitel" autocomplete="tel" />
+        </label>
+      </div>
+      <div class="col-8">
+        <label>Kojim putem želite da Vas kontaktiramo?
+          <input type="text" name="kontakt_put" />
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <label>Kako ste čuli za nas?
+          <input type="text" name="kako_culi" />
+        </label>
+      </div>
+    </div>
+
+    <h2>ZDRAVSTVENI UPITNIK (PAR-Q)</h2>
+
+    <fieldset>
+      <legend>Zdravstvena pitanja</legend>
+
+      <label>Da li vam je liječnik ikada rekao da imate probleme sa srcem i da bi tjelesnu aktivnost trebali provoditi samo s preporukom liječnika?</label>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="parq_srce_preporuka" value="da" /> DA</label>
+        <label class="choice"><input type="radio" name="parq_srce_preporuka" value="ne" /> NE</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Da li tijekom tjelesne aktivnosti osjećate bol u prsima?</label>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="parq_bol_prsima_aktivnost" value="da" /> DA</label>
+        <label class="choice"><input type="radio" name="parq_bol_prsima_aktivnost" value="ne" /> NE</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Da li ste prošlih mjeseci tijekom mirovanja imali bolove u prsima?</label>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="parq_bol_prsima_mirovanje" value="da" /> DA</label>
+        <label class="choice"><input type="radio" name="parq_bol_prsima_mirovanje" value="ne" /> NE</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Da li gubite ravnotežu zbog vrtoglavice i da li ste ikada izgubili svijest?</label>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="parq_vrtoglavica" value="da" /> DA</label>
+        <label class="choice"><input type="radio" name="parq_vrtoglavica" value="ne" /> NE</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Da li imate probleme sa zglobovima ili kostima (npr. leđa, koljeno ili kuk) koji bi se mogli pogoršati zbog vježbanja?</label>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="parq_zglobovi" value="da" /> DA</label>
+        <label class="choice"><input type="radio" name="parq_zglobovi" value="ne" /> NE</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Da li sada uzimate lijekove zbog povišenog tlaka ili zbog srca?</label>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="parq_lijekovi" value="da" /> DA</label>
+        <label class="choice"><input type="radio" name="parq_lijekovi" value="ne" /> NE</label>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Da li znate bilo koji drugi razlog zbog kojeg ne bi smjeli vježbati?</label>
+      <textarea name="parq_drugi_razlog" placeholder="Navedite ako postoji"></textarea>
+    </fieldset>
+
+    <h2>CILJEVI</h2>
+    <p>(Stavite kvačicu pored jednog ili više ciljeva.)</p>
+    <div class="choices">
+      <label class="choice"><input type="checkbox" name="ciljevi" value="smrsaviti" /> smršaviti</label>
+      <label class="choice"><input type="checkbox" name="ciljevi" value="misicna_masa" /> povećati mišićnu masu</label>
+      <label class="choice"><input type="checkbox" name="ciljevi" value="osjecati_se_dobro" /> osjećati se dobro</label>
+      <label class="choice"><input type="checkbox" name="ciljevi" value="izdrzljivost" /> povećati izdržljivost</label>
+      <label class="choice"><input type="checkbox" name="ciljevi" value="smanjiti_bolove_ledja" /> smanjiti bolove u leđima</label>
+      <label class="choice"><input type="checkbox" name="ciljevi" value="snaga" /> povećati snagu</label>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <label>Ostalo (navesti)
+          <input type="text" name="ciljevi_ostalo" />
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <label>Imate li određeno vrijeme do kada biste htjeli postići navedene ciljeve?
+          <input type="text" name="ciljevi_vremenski_okvir" />
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6">
+        <label>Koliko treninga tjedno?
+          <input type="number" min="0" name="treninga_tjedno" />
+        </label>
+      </div>
+      <div class="col-6">
+        <label>Koliko minuta po treningu?
+          <input type="number" min="0" name="minuta_po_treningu" />
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <label class="choice"><input type="checkbox" name="zelim_savjet_trenera" /> želim čuti savjet trenera</label>
+      </div>
+    </div>
+
+    <h2>ŽIVOTNE NAVIKE</h2>
+
+    <h3>Pušenje</h3>
+    <div class="row">
+      <div class="col-6">
+        <label>Jeste li ikada pušili?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="pusili_ikada" value="da" /> Da</label>
+          <label class="choice"><input type="radio" name="pusili_ikada" value="ne" /> Ne</label>
+        </div>
+      </div>
+      <div class="col-6">
+        <label>Pušite li trenutno?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="pusite_trenutno" value="da" /> Da</label>
+          <label class="choice"><input type="radio" name="pusite_trenutno" value="ne" /> Ne</label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-4">
+        <label>S koliko godina ste počeli pušiti?
+          <input type="number" min="0" name="godine_pocetak_pusenja" />
+        </label>
+      </div>
+      <div class="col-8">
+        <label>Ako ste prestali pušiti, kada ste prestali?
+          <input type="text" name="kada_prestali" />
+        </label>
+      </div>
+    </div>
+
+    <h3>Alkohol</h3>
+    <div class="row">
+      <div class="col-4">
+        <label>Koliko ste puta konzumirali alkohol protekli mjesec?
+          <input type="number" min="0" name="alkohol_mjesec_puta" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>Koliko navrata 5+ pića u jednoj večeri (protekli mjesec)?
+          <input type="number" min="0" name="alkohol_binge_puta" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>Koliko puta tjedno pijete alkohol?
+          <input type="number" min="0" name="alkohol_tjedno" />
+        </label>
+      </div>
+    </div>
+
+    <h3>Tjelesna aktivnost</h3>
+    <div class="row">
+      <div class="col-4">
+        <label>Vježbate li redovito?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="vjezba_redovito" value="da" /> Da</label>
+          <label class="choice"><input type="radio" name="vjezba_redovito" value="ne" /> Ne</label>
+        </div>
+      </div>
+      <div class="col-8">
+        <label>U koje ste aktivnosti uključeni?
+          <input type="text" name="aktivnosti" />
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-4">
+        <label>Koliko km po treningu (trčanje/hodanje/džoging)?
+          <input type="number" min="0" step="0.1" name="km_po_treningu" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>Prosječno trajanje treninga (min)
+          <input type="number" min="0" name="trajanje_treninga" />
+        </label>
+      </div>
+      <div class="col-4">
+        <label>Broj treninga tjedno
+          <input type="number" min="0" name="treninzi_tjedno" />
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <label>Kako biste opisali svoj posao?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="posao_opis" value="neaktivan" /> neaktivan (npr. uredski posao)</label>
+          <label class="choice"><input type="radio" name="posao_opis" value="lagana" /> lagana aktivnost (npr. kućanski poslovi, laki zanatski poslovi)</label>
+          <label class="choice"><input type="radio" name="posao_opis" value="naporna" /> naporna aktivnost (npr. teški zanatski poslovi, dizanja i/ili nošenja predmeta)</label>
+        </div>
+      </div>
+    </div>
+
+    <h2>PREHRAMBENE NAVIKE</h2>
+    <div class="row">
+      <div class="col-3">
+        <label>Težina (kg)
+          <input type="number" min="0" step="0.1" name="tezina" />
+        </label>
+      </div>
+      <div class="col-3">
+        <label>Visina (cm)
+          <input type="number" min="0" name="visina" />
+        </label>
+      </div>
+      <div class="col-3">
+        <label>Idealna težina (kg)
+          <input type="number" min="0" step="0.1" name="idealna_tezina" />
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <label>Koje ste načine mršavljenja dosad probali (ako ste probali)?
+          <textarea name="nacini_mrsavljenja"></textarea>
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <label>Što od navedenog jedete redovito?</label>
+        <div class="choices">
+          <label class="choice"><input type="checkbox" name="prehrana_redovito" value="dorucak" /> Doručak</label>
+          <label class="choice"><input type="checkbox" name="prehrana_redovito" value="medu_prije_rucak" /> Međuobrok prije ručka</label>
+          <label class="choice"><input type="checkbox" name="prehrana_redovito" value="rucak" /> Ručak</label>
+          <label class="choice"><input type="checkbox" name="prehrana_redovito" value="medu_prije_vecera" /> Međuobrok prije večere</label>
+          <label class="choice"><input type="checkbox" name="prehrana_redovito" value="vecera" /> Večera</label>
+          <label class="choice"><input type="checkbox" name="prehrana_redovito" value="poslije_vecere" /> Obrok poslije večere</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-4">
+        <label>Koliko često jedete u restoranu (puta tjedno)?
+          <input type="number" min="0" name="restoran_tjedno" />
+        </label>
+      </div>
+      <div class="col-8">
+        <label>Veličina porcije koju najčešće uzimate</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="porcija_velicina" value="mala" /> Mala</label>
+          <label class="choice"><input type="radio" name="porcija_velicina" value="srednja" /> Srednja</label>
+          <label class="choice"><input type="radio" name="porcija_velicina" value="velika" /> Velika</label>
+          <label class="choice"><input type="radio" name="porcija_velicina" value="extra_velika" /> Extra velika</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <label>Koliko često jedete više od jedne porcije?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="vise_porcia" value="uvijek" /> Uvijek</label>
+          <label class="choice"><input type="radio" name="vise_porcia" value="cesto" /> Često</label>
+          <label class="choice"><input type="radio" name="vise_porcia" value="ponekad" /> Ponekad</label>
+          <label class="choice"><input type="radio" name="vise_porcia" value="nikada" /> Nikada</label>
+        </div>
+      </div>
+      <div class="col-6">
+        <label>Koliko dugo Vam treba da pojedete obrok? (min)
+          <input type="number" min="0" name="vrijeme_jedenja" />
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <label>Jedete li dok radite druge aktivnosti (TV, čitanje, posao)?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="jedenje_multitask" value="da" /> Da</label>
+          <label class="choice"><input type="radio" name="jedenje_multitask" value="ne" /> Ne</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <label>Koliko puta tjedno uživate u sljedećim zakuskama?</label>
+        <div class="grid">
+          <div class="col-6"><label>Keksi, kolači, pite <input type="number" min="0" name="keksi_kolaci" /></label></div>
+          <div class="col-6"><label>Slatkiši <input type="number" min="0" name="slatkisi" /></label></div>
+          <div class="col-6"><label>Gazirana pića <input type="number" min="0" name="gazirana" /></label></div>
+          <div class="col-6"><label>Krafne <input type="number" min="0" name="krafne" /></label></div>
+          <div class="col-6"><label>Mlijeko ili mliječni napici <input type="number" min="0" name="mlijeko" /></label></div>
+          <div class="col-6"><label>Čips/pereci/kifle <input type="number" min="0" name="cips_pereci" /></label></div>
+          <div class="col-6"><label>Kikiriki/orašasti plodovi <input type="number" min="0" name="orasasti" /></label></div>
+          <div class="col-6"><label>Sladoled <input type="number" min="0" name="sladoled" /></label></div>
+          <div class="col-6"><label>Sir i krekeri <input type="number" min="0" name="sir_krekeri" /></label></div>
+          <div class="col-6"><label>Voće <input type="number" min="0" name="voce" /></label></div>
+          <div class="col-6"><label>Dijetni sokovi <input type="number" min="0" name="dijetni_sokovi" /></label></div>
+          <div class="col-6"><label>Ostalo <input type="text" name="zakuske_ostalo" /></label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <label>Koliko često jedete desert?</label>
+        <div class="choices">
+          <label class="choice">Puta dnevno <input type="number" min="0" name="desert_dnevno" style="width:90px"/></label>
+          <label class="choice">Puta tjedno <input type="number" min="0" name="desert_tjedno" style="width:90px"/></label>
+        </div>
+      </div>
+      <div class="col-6">
+        <label>Koji desert najčešće jedete?
+          <input type="text" name="desert_najcesce" />
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <label>Koliko često jedete prženu hranu? (puta tjedno)
+          <input type="number" min="0" name="przena_tjedno" />
+        </label>
+      </div>
+      <div class="col-6">
+        <label>Solite li hranu na stolu?</label>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="sol_na_stolu" value="da" /> Da</label>
+          <label class="choice"><input type="radio" name="sol_na_stolu" value="ne" /> Ne</label>
+          <label class="choice"><input type="radio" name="sol_na_stolu_kada" value="prije" /> Prije kušanja</label>
+          <label class="choice"><input type="radio" name="sol_na_stolu_kada" value="poslije" /> Poslije kušanja</label>
+        </div>
+      </div>
+    </div>
+
+    <h2>INFORMIRANI PRISTANAK</h2>
+    <p class="small">Potpisom na ovaj dokument izjavljujem da sam spreman/spremna za treninge vođene osobnim trenerom na vlastitu odgovornost, potpuno svjestan/svjesna da sudjelovanje u tjelesnoj aktivnosti predstavlja rizik od ozljede, srčanog udara ili čak i smrti. Također sam svjestan/svjesna da postoje i druge opasnosti koje je nemoguće ovdje nabrojiti.</p>
+    <p class="small">Sukladno odredbi članka 6. stavka prvog točke a) Uredbe (EU) 2016/679 (GDPR), ispunjavanjem i slanjem ovog upitnika dajem suglasnost voditelju obrade za korištenje osobnih podataka u svrhu uspostave kontakta, izdavanja računa i informiranja o novostima. Podacima mogu upravljati zahtjevom e‑poštom.</p>
+    <div class="row">
+      <div class="col-6">
+        <label>Mjesto i datum
+          <input type="text" name="mjesto_datum" placeholder="npr. Koprivnica, 05.09.2025." />
+        </label>
+      </div>
+      <div class="col-6">
+        <label>Vlastoručni potpis (ispisom):</label>
+        <div class="sig-line"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="reset">Poništi</button>
+      <button type="button" class="primary" onclick="window.print()">Ispiši / Spremi kao PDF</button>
+    </div>
+  </form>
+</body>
+</html>
