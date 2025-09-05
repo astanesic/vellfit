@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intervalni Trener (stanice)</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121936; --muted:#9aa4c7; --accent:#4cc9f0; --good:#7bd88f; --warn:#ffd166; --bad:#ef476f;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,sans-serif; color:#eef2ff; background:var(--bg);}
+    .wrap{max-width:1100px; margin:0 auto; padding:16px;}
+    h1{font-size:20px; margin:0 0 12px 0; font-weight:700; letter-spacing:.2px}
+    .grid{display:grid; grid-template-columns:1.1fr .9fr; gap:16px}
+    .card{background:var(--panel); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,.25)}
+    .card h2{font-size:14px; color:var(--muted); font-weight:600; margin:0 0 8px 0; text-transform:uppercase; letter-spacing:.08em}
+    label{display:block; font-size:13px; color:var(--muted); margin:8px 0 6px}
+    textarea,input{width:100%; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:#0f1530; color:#e7ecff; padding:10px; font-size:14px;}
+    textarea{min-height:110px; resize:vertical;}
+    input[type=number]{max-width:120px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{appearance:none; border:none; border-radius:12px; padding:10px 14px; cursor:pointer; font-weight:700; letter-spacing:.2px; background:#1a2248; color:#e9f1ff; transition:.15s transform ease,.2s background ease}
+    .btn:hover{transform:translateY(-1px); background:#1f2a56}
+    .btn.primary{background:linear-gradient(135deg,#3a86ff,#8338ec);}
+    .btn.green{background:linear-gradient(135deg,#06d6a0,#118ab2)}
+    .btn.red{background:linear-gradient(135deg,#ef476f,#f3722c)}
+    .btn.ghost{background:transparent; border:1px dashed rgba(255,255,255,.25)}
+    .muted{color:var(--muted)}
+
+    .timer{display:grid; grid-template-columns:1fr; gap:10px; text-align:center}
+    .phase{font-size:13px; color:#c7d0f0; letter-spacing:.15em; text-transform:uppercase}
+    .time{font-size:72px; font-weight:800; line-height:1;}
+    .time.small{font-size:44px}
+    .rounds{font-size:14px; color:#cfe3ff}
+    progress{width:100%; height:14px; -webkit-appearance:none; appearance:none;}
+    progress::-webkit-progress-bar{background:#0b1130; border-radius:10px}
+    progress::-webkit-progress-value{background:linear-gradient(90deg,var(--accent),#7bd88f); border-radius:10px}
+
+    table{width:100%; border-collapse:separate; border-spacing:0 8px}
+    th,td{text-align:left; padding:10px 12px; font-size:15px}
+    thead th{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em}
+    tbody tr{background:#0e1736; border:1px solid rgba(255,255,255,.06)}
+    tbody tr td:first-child{border-radius:10px 0 0 10px}
+    tbody tr td:last-child{border-radius:0 10px 10px 0}
+
+    .badger{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700}
+    .work{background:#182b5a; color:#a9d6ff}
+    .rest{background:#2a2048; color:#f7d6ff}
+
+    .warn{color:var(--warn)}
+    .note{font-size:13px; color:#c9d7ff}
+
+    .flex-between{display:flex; justify-content:space-between; align-items:center}
+    .stack{display:flex; flex-direction:column; gap:6px}
+    .controls{display:flex; gap:8px; flex-wrap:wrap}
+
+    .footer{margin-top:14px; color:var(--muted); font-size:12px}
+
+    /* Fullscreen styles */
+    .fullscreen-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .fullscreen-mode .fullscreen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .fullscreen-mode .logo {
+      height: 60px;
+      width: auto;
+    }
+
+    .fullscreen-mode .exit-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .fullscreen-mode .fullscreen-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .fullscreen-mode .timer {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .fullscreen-mode .time {
+      font-size: 120px;
+    }
+
+    .fullscreen-mode .time.small {
+      font-size: 80px;
+    }
+
+    .fullscreen-mode .mapping-card {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .fullscreen-mode .mapping-card h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .fullscreen-mode table th,
+    .fullscreen-mode table td {
+      font-size: 18px;
+      padding: 15px 20px;
+    }
+
+    @media (max-width:860px){
+      .grid{grid-template-columns:1fr}
+      .time{font-size:56px}
+      
+      .fullscreen-mode .fullscreen-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .fullscreen-mode .time {
+        font-size: 80px;
+      }
+      
+      .fullscreen-mode .time.small {
+        font-size: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="normalView">
+    <h1>Intervalni Trener (stanice)</h1>
+    <div class="grid">
+      <div class="card">
+        <h2>Postavke</h2>
+        <label>Vježbe (jedna po liniji ili odvojene zarezom)</label>
+        <textarea id="exercises">1. guma
+2. trax
+3. puzanje
+4. trbušnjaci</textarea>
+        <label>Osobe (jedna po liniji ili odvojene zarezom)</label>
+        <textarea id="people">Ana
+Buba
+Biba</textarea>
+        <div class="row">
+          <div class="stack">
+            <label>Rad (sek)</label>
+            <input id="workSec" type="number" min="5" step="5" value="40" />
+          </div>
+          <div class="stack">
+            <label>Odmor (sek)</label>
+            <input id="restSec" type="number" min="0" step="5" value="30" />
+          </div>
+          <div class="stack">
+            <label>Krugovi</label>
+            <input id="rounds" type="number" min="1" step="1" value="3" />
+          </div>
+          <div class="stack" style="min-width:150px">
+            <label>Glasnoća</label>
+            <input id="vol" type="range" min="0" max="100" value="60" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn ghost" id="fullscreen">⛶ Cijeli ekran</button>
+          <label style="display:flex; gap:8px; align-items:center; margin-left:auto;">
+            <input type="checkbox" id="beeps" checked /> Zvukovi
+          </label>
+        </div>
+        <div class="note" style="margin-top:8px">Ukupno planirano vrijeme: <span id="totalPlan">—:—</span>
+          <span id="mismatch" class="warn" style="display:none"> • Napomena: broj osoba i vježbi nije isti — rotacija će ponavljati vježbe.</span>
+        </div>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="start">▶️ Start</button>
+          <button class="btn" id="pause">⏸ Pauza</button>
+          <button class="btn red" id="reset">⟲ Reset</button>
+          <button class="btn" id="skip">⭢ Preskoči fazu</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Status</h2>
+        <div class="timer" id="timerSection">
+          <div class="phase"><span id="phaseBadge" class="badger work">Rad</span></div>
+          <div class="time" id="timeLeft">00:40</div>
+          <progress id="bar" max="1" value="0"></progress>
+          <div class="flex-between">
+            <div class="rounds">Krug: <strong id="roundInfo">1 / 3</strong></div>
+            <div class="rounds">Preostalo ukupno: <strong id="totalRemain">—:—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px" id="mappingSection">
+      <h2><span id="mappingTitle">Tko radi koju vježbu (sada)</span></h2>
+      <table>
+        <thead>
+          <tr><th>Osoba</th><th>Vježba</th></tr>
+        </thead>
+        <tbody id="mapping"></tbody>
+      </table>
+      <div class="footer">Savjet: okreni telefon vodoravno i uključi <em>Cijeli ekran</em> za pregledniji prikaz.</div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Upute</h2>
+      <ul>
+        <li>Unesi vježbe i osobe. Broj ne mora biti jednak (ako nije, vježbe će se ponavljati).</li>
+        <li>Postavi trajanja i broj krugova.</li>
+        <li>Klikni <strong>Start</strong> (prvi klik aktivira zvuk u pregledniku). Zadnjih 5 sekundi svake faze čuje se „pip", a na kraju faze drugačiji zvuk.</li>
+        <li>Rotacija se događa nakon odmora. Nakon posljednje vježbe zadnjeg kruga nema završnog odmora.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Fullscreen View -->
+  <div class="fullscreen-mode" id="fullscreenView" style="display: none;">
+    <div class="fullscreen-header">
+      <img src="vellfit-logo.png"
+           alt="VelFit Logo" id="logo">
+      <button class="exit-btn" id="exitFullscreen">✕ Izađi</button>
+    </div>
+    
+    <div class="fullscreen-content">
+      <div class="timer" id="fullscreenTimer">
+        <div class="phase"><span id="fullscreenPhaseBadge" class="badger work">Rad</span></div>
+        <div class="time" id="fullscreenTimeLeft">00:40</div>
+        <progress id="fullscreenBar" max="1" value="0"></progress>
+        <div class="flex-between">
+          <div class="rounds">Krug: <strong id="fullscreenRoundInfo">1 / 3</strong></div>
+          <div class="rounds">Preostalo ukupno: <strong id="fullscreenTotalRemain">—:—</strong></div>
+        </div>
+      </div>
+      
+      <div class="mapping-card">
+        <h2><span id="fullscreenMappingTitle">Tko radi koju vježbu (sada)</span></h2>
+        <table>
+          <thead>
+            <tr><th>Osoba</th><th>Vježba</th></tr>
+          </thead>
+          <tbody id="fullscreenMapping"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    const $ = sel => document.querySelector(sel);
+    const exercisesEl = $('#exercises');
+    const peopleEl = $('#people');
+    const workSecEl = $('#workSec');
+    const restSecEl = $('#restSec');
+    const roundsEl = $('#rounds');
+    const volEl = $('#vol');
+    const barEl = $('#bar');
+    const timeLeftEl = $('#timeLeft');
+    const roundInfoEl = $('#roundInfo');
+    const totalPlanEl = $('#totalPlan');
+    const totalRemainEl = $('#totalRemain');
+    const mappingEl = $('#mapping');
+    const phaseBadge = $('#phaseBadge');
+    const mismatch = $('#mismatch');
+    const mappingTitle = $('#mappingTitle');
+
+    // Fullscreen elements
+    const fullscreenView = $('#fullscreenView');
+    const normalView = $('#normalView');
+    const fullscreenBar = $('#fullscreenBar');
+    const fullscreenTimeLeft = $('#fullscreenTimeLeft');
+    const fullscreenRoundInfo = $('#fullscreenRoundInfo');
+    const fullscreenTotalRemain = $('#fullscreenTotalRemain');
+    const fullscreenMapping = $('#fullscreenMapping');
+    const fullscreenPhaseBadge = $('#fullscreenPhaseBadge');
+    const fullscreenMappingTitle = $('#fullscreenMappingTitle');
+
+    const startBtn = $('#start');
+    const pauseBtn = $('#pause');
+    const resetBtn = $('#reset');
+    const skipBtn = $('#skip');
+    const fullscreenBtn = $('#fullscreen');
+    const exitFullscreenBtn = $('#exitFullscreen');
+    const beepsChk = $('#beeps');
+
+    let isFullscreenMode = false;
+
+    function linesToList(txt){
+      return txt.split(/\n|,/).map(s=>s.replace(/^\s*\d+\.?\s*/, '').trim()).filter(Boolean);
+    }
+    function pad(n){return String(n).padStart(2,'0')}
+    function fmtTime(s){s=Math.max(0, Math.ceil(s)); return `${pad(Math.floor(s/60))}:${pad(s%60)}`}
+
+    // ===== State =====
+    let state = {
+      exercises: [],
+      people: [],
+      workSec: 40,
+      restSec: 30,
+      rounds: 3,
+      totalWorkIntervals: 0, // N
+      totalPhases: 0,        // 2N-1
+      totalPlannedSec: 0,
+      started: false,
+      paused: false,
+      phaseIndex: 0,         // 0..totalPhases-1 (even=work, odd=rest)
+      phaseStartMs: 0,
+      phaseDurSec: 0,
+      targetEndMs: 0,
+      raf: null,
+      beepedForSec: new Set(),
+      wakeLock: null,
+      audioCtx: null,
+      gainNode: null,
+    };
+
+    // Auto wake lock management
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator && !state.wakeLock) {
+        try {
+          state.wakeLock = await navigator.wakeLock.request('screen');
+          state.wakeLock.addEventListener('release', () => {
+            state.wakeLock = null;
+          });
+          console.log('Wake lock activated');
+        } catch (e) {
+          console.warn('Could not activate wake lock:', e);
+        }
+      }
+    }
+
+    function releaseWakeLock() {
+      if (state.wakeLock) {
+        state.wakeLock.release();
+        state.wakeLock = null;
+        console.log('Wake lock released');
+      }
+    }
+
+    function computeTotals(){
+      const ex = state.exercises.length; const N = state.rounds * Math.max(1, ex);
+      state.totalWorkIntervals = N;
+      state.totalPhases = Math.max(1, 2*N - 1);
+      const restCount = N - 1;
+      state.totalPlannedSec = state.rounds * ex * state.workSec + restCount * state.restSec;
+      totalPlanEl.textContent = fmtTime(state.totalPlannedSec);
+      mismatch.style.display = state.people.length && state.exercises.length && state.people.length !== state.exercises.length ? 'inline' : 'none';
+    }
+
+    function readInputs(){
+      state.exercises = linesToList(exercisesEl.value);
+      state.people = linesToList(peopleEl.value);
+      state.workSec = Math.max(1, parseInt(workSecEl.value||40,10));
+      state.restSec = Math.max(0, parseInt(restSecEl.value||0,10));
+      state.rounds = Math.max(1, parseInt(roundsEl.value||1,10));
+      computeTotals();
+      updateStaticUI();
+      save();
+    }
+
+    function updateStaticUI(){
+      // Round info (when not started shows 1/x)
+      const [rNow, rTot] = getRoundInfo();
+      roundInfoEl.textContent = `${rNow} / ${rTot}`;
+      fullscreenRoundInfo.textContent = `${rNow} / ${rTot}`;
+      
+      const timeText = fmtTime(currentPhaseRemaining());
+      timeLeftEl.textContent = timeText;
+      fullscreenTimeLeft.textContent = timeText;
+      
+      barEl.value = 0;
+      fullscreenBar.value = 0;
+      
+      renderMapping();
+      updatePhaseBadge();
+      updateTotalRemaining();
+    }
+
+    function getRoundInfo(){
+      const exLen = Math.max(1, state.exercises.length);
+      const workIdx = Math.floor(state.phaseIndex/2); // 0..N-1
+      const roundNow = Math.min(state.rounds, Math.floor(workIdx / exLen) + 1);
+      return [roundNow, state.rounds];
+    }
+
+    function currentPhaseRemaining(){
+      if(!state.started) return (state.phaseIndex % 2 === 0 ? state.workSec : state.restSec);
+      return Math.max(0, (state.targetEndMs - performance.now())/1000);
+    }
+
+    function updatePhaseBadge(){
+      const isWork = state.phaseIndex % 2 === 0;
+      const phaseText = isWork ? 'Rad' : 'Odmor';
+      const className = 'badger ' + (isWork ? 'work' : 'rest');
+      const titleText = isWork ? 'Tko radi koju vježbu (sada)' : 'Sljedeće (nakon odmora)';
+      
+      phaseBadge.textContent = phaseText;
+      phaseBadge.className = className;
+      fullscreenPhaseBadge.textContent = phaseText;
+      fullscreenPhaseBadge.className = className;
+      
+      mappingTitle.textContent = titleText;
+      fullscreenMappingTitle.textContent = titleText;
+      
+      timeLeftEl.classList.toggle('small', !isWork);
+      fullscreenTimeLeft.classList.toggle('small', !isWork);
+    }
+
+    function renderMapping(){
+      const people = state.people.length ? state.people : ['Osoba 1','Osoba 2','Osoba 3'];
+      const ex = state.exercises.length ? state.exercises : ['Vježba 1','Vježba 2','Vježba 3'];
+      const exLen = ex.length;
+      const workIdx = Math.floor(state.phaseIndex/2);
+      const showIndex = (state.phaseIndex % 2 === 0) ? workIdx : Math.min(state.totalWorkIntervals-1, workIdx + 1);
+
+      const rows = people.map((p, j) => {
+        const exName = ex[(j + showIndex) % exLen];
+        return `<tr><td>${escapeHtml(p)}</td><td>${escapeHtml(exName)}</td></tr>`;
+      }).join('');
+      
+      mappingEl.innerHTML = rows;
+      fullscreenMapping.innerHTML = rows;
+    }
+
+    function escapeHtml(s){return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+
+    function setPhase(idx){
+      state.phaseIndex = idx;
+      state.phaseDurSec = (idx % 2 === 0) ? state.workSec : state.restSec;
+      state.phaseStartMs = performance.now();
+      state.targetEndMs = state.phaseStartMs + state.phaseDurSec * 1000;
+      state.beepedForSec.clear();
+      updatePhaseBadge();
+      renderMapping();
+      const [rNow, rTot] = getRoundInfo();
+      roundInfoEl.textContent = `${rNow} / ${rTot}`;
+      fullscreenRoundInfo.textContent = `${rNow} / ${rTot}`;
+      // If rest duration is 0, immediately skip rest phases
+      if(state.phaseDurSec === 0){
+        nextPhase();
+      }
+    }
+
+    function nextPhase(){
+      if(state.phaseIndex >= state.totalPhases - 1){
+        finishWorkout();
+        return;
+      }
+      setPhase(state.phaseIndex + 1);
+    }
+
+    function prevPhase(){
+      if(state.phaseIndex <= 0){return}
+      setPhase(state.phaseIndex - 1);
+    }
+
+    function start(){
+      if(state.started && !state.paused) return;
+      state.started = true; state.paused = false;
+      
+      // Request wake lock when starting
+      requestWakeLock();
+      
+      // init audio context on first start
+      if(!state.audioCtx){
+        try{
+          state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          state.gainNode = state.audioCtx.createGain();
+          state.gainNode.gain.value = volEl.value/100 * 0.6; // master
+          state.gainNode.connect(state.audioCtx.destination);
+        }catch(e){ console.warn('Audio init failed:', e); }
+      } else if (state.audioCtx.state === 'suspended'){
+        state.audioCtx.resume();
+      }
+      tick();
+    }
+
+    function pause(){
+      if(!state.started || state.paused) return;
+      state.paused = true;
+      cancelAnimationFrame(state.raf);
+      // freeze remaining time and keep it
+      const remain = currentPhaseRemaining();
+      state.phaseDurSec = remain; // reuse as duration for resume
+    }
+
+    function resume(){
+      if(!state.paused) return;
+      state.paused = false;
+      state.phaseStartMs = performance.now();
+      state.targetEndMs = state.phaseStartMs + state.phaseDurSec * 1000;
+      state.beepedForSec.clear();
+      tick();
+    }
+
+    function reset(){
+      cancelAnimationFrame(state.raf);
+      state.started = false; state.paused = false;
+      state.phaseIndex = 0; state.beepedForSec.clear();
+      
+      // Release wake lock when resetting
+      releaseWakeLock();
+      
+      setPhase(0);
+      barEl.value = 0; 
+      fullscreenBar.value = 0;
+      const timeText = fmtTime(state.phaseDurSec);
+      timeLeftEl.textContent = timeText;
+      fullscreenTimeLeft.textContent = timeText;
+      updateTotalRemaining();
+    }
+
+    function finishWorkout(){
+      cancelAnimationFrame(state.raf);
+      chimeEndLong();
+      state.started = false; state.paused = false;
+      
+      // Release wake lock when workout finishes
+      releaseWakeLock();
+      
+      barEl.value = 1; 
+      fullscreenBar.value = 1;
+      timeLeftEl.textContent = 'GOTOVO';
+      fullscreenTimeLeft.textContent = 'GOTOVO';
+    }
+
+    function updateTotalRemaining(){
+      // Remaining = (sum of durations for current phase remainder + all future phases)
+      const totalPhases = state.totalPhases;
+      let remain = currentPhaseRemaining();
+      for(let i = state.phaseIndex + 1; i < totalPhases; i++){
+        remain += (i % 2 === 0) ? state.workSec : state.restSec;
+      }
+      const remainText = fmtTime(remain);
+      totalRemainEl.textContent = remainText;
+      fullscreenTotalRemain.textContent = remainText;
+    }
+
+    function tick(){
+      const now = performance.now();
+      const elapsed = (now - state.phaseStartMs) / 1000;
+      const dur = state.phaseDurSec;
+      const remain = Math.max(0, dur - elapsed);
+      const timeText = fmtTime(remain);
+      
+      timeLeftEl.textContent = timeText;
+      fullscreenTimeLeft.textContent = timeText;
+      
+      const progress = dur ? Math.min(1, (elapsed / dur)) : 1;
+      barEl.value = progress;
+      fullscreenBar.value = progress;
+      
+      doBeeps(remain);
+      updateTotalRemaining();
+      
+      if(remain <= 0){
+        // phase end
+        chimeEnd();
+        nextPhase();
+      }
+      if(!state.paused && state.started){
+        state.raf = requestAnimationFrame(tick);
+      }
+    }
+
+    // ===== Audio =====
+    function playTone(freq=800, seconds=0.12){
+      if(!beepsChk.checked) return;
+      try{
+        const ctx = state.audioCtx; if(!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        gain.gain.value = (volEl.value/100) * 0.4;
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain); gain.connect(state.gainNode || ctx.destination);
+        const t = ctx.currentTime;
+        // simple envelope
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime((volEl.value/100)*0.4, t+0.02);
+        gain.gain.exponentialRampToValueAtTime(1e-3, t+seconds);
+        osc.start(t);
+        osc.stop(t + seconds + 0.02);
+      }catch(e){ /* ignore */ }
+    }
+
+    function doBeeps(remain){
+      const sec = Math.ceil(remain);
+      if(sec <= 5 && sec > 0){
+        if(!state.beepedForSec.has(sec)){
+          playTone(760, 0.10); // pip
+          state.beepedForSec.add(sec);
+        }
+      }
+    }
+
+    function chimeEnd(){
+      // two short beeps to mark transition
+      setTimeout(()=>playTone(940,0.12), 0);
+      setTimeout(()=>playTone(660,0.12), 140);
+    }
+    function chimeEndLong(){
+      setTimeout(()=>playTone(660,0.18), 0);
+      setTimeout(()=>playTone(990,0.24), 220);
+      setTimeout(()=>playTone(1320,0.28), 480);
+    }
+
+    // ===== Fullscreen Management =====
+    function enterFullscreenMode() {
+      isFullscreenMode = true;
+      normalView.style.display = 'none';
+      fullscreenView.style.display = 'flex';
+      
+      // Try to enter browser fullscreen
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(e => {
+          console.log('Could not enter browser fullscreen:', e);
+        });
+      }
+    }
+
+    function exitFullscreenMode() {
+      isFullscreenMode = false;
+      fullscreenView.style.display = 'none';
+      normalView.style.display = 'block';
+      
+      // Exit browser fullscreen
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(e => {
+          console.log('Could not exit browser fullscreen:', e);
+        });
+      }
+    }
+
+    // ===== Controls =====
+    startBtn.addEventListener('click', ()=>{
+      if(!state.started) { setPhase(0); }
+      if(state.paused) { resume(); } else { start(); }
+    });
+    pauseBtn.addEventListener('click', ()=> state.paused ? resume() : pause());
+    resetBtn.addEventListener('click', reset);
+    skipBtn.addEventListener('click', ()=>{ chimeEnd(); nextPhase(); });
+
+    fullscreenBtn.addEventListener('click', enterFullscreenMode);
+    exitFullscreenBtn.addEventListener('click', exitFullscreenMode);
+
+    // Handle browser fullscreen changes
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && isFullscreenMode) {
+        // User exited fullscreen via browser controls
+        exitFullscreenMode();
+      }
+    });
+
+    // Handle escape key to exit fullscreen
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isFullscreenMode) {
+        exitFullscreenMode();
+      }
+    });
+
+    [exercisesEl, peopleEl, workSecEl, restSecEl, roundsEl, volEl, beepsChk].forEach(el=>{
+      el.addEventListener('input', readInputs);
+    });
+
+    function save(){
+      const data = {
+        ex: exercisesEl.value, pe: peopleEl.value,
+        w: workSecEl.value, r: restSecEl.value, n: roundsEl.value
+      };
+      try{ localStorage.setItem('interval_trainer_cfg', JSON.stringify(data)); }catch(e){}
+    }
+    function load(){
+      try{
+        const raw = localStorage.getItem('interval_trainer_cfg');
+        if(!raw) return;
+        const d = JSON.parse(raw);
+        if(d.ex) exercisesEl.value = d.ex;
+        if(d.pe) peopleEl.value = d.pe;
+        if(d.w) workSecEl.value = d.w;
+        if(d.r) restSecEl.value = d.r;
+        if(d.n) roundsEl.value = d.n;
+      }catch(e){}
+    }
+
+    // init
+    load();
+    readInputs();
+    setPhase(0);
+  </script>
+</body>
+</html>
